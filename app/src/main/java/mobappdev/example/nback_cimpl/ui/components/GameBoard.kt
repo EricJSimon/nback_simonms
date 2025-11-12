@@ -10,10 +10,17 @@ import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.size
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import kotlinx.coroutines.delay
+import mobappdev.example.nback_cimpl.ui.viewmodels.GameState
 
 /**
  *
@@ -29,7 +36,7 @@ import androidx.compose.ui.unit.dp
  *
  * @param modifier: Modifier
  * @param size: Int
- * @param activeCellIndex: Int
+ * @param gameState: GameState
  *
  * date: 2025-11-06
  * @author Simonms
@@ -39,8 +46,18 @@ import androidx.compose.ui.unit.dp
 fun GameBoard(
     modifier: Modifier = Modifier,
     size: Int = 3,
-    activeCellIndex: Int
+    gameState: GameState
 ) {
+    var isCellVisible by remember { mutableStateOf(true) }
+
+    LaunchedEffect(key1 = gameState) {
+        if (gameState.eventValue != -1) {
+            isCellVisible = true
+            delay(500L)
+            isCellVisible = false
+        }
+    }
+
     Box(modifier = modifier) {
         Column(
             modifier = Modifier.fillMaxSize(),
@@ -53,9 +70,12 @@ fun GameBoard(
                 ) {
                     repeat(size) { colIndex ->
                         val cellIndex = rowIndex * size + colIndex
-                        val isCellActive = (cellIndex == activeCellIndex)
+                        val isCellActive = (cellIndex == gameState.eventValue - 1)
 
-                        GridCell(isActive = isCellActive)
+                        GridCell(
+                            isActive = isCellActive,
+                            visible = isCellVisible
+                        )
                     }
                 }
             }
@@ -66,9 +86,10 @@ fun GameBoard(
 @Composable
 fun GridCell(
     isActive: Boolean,
+    visible: Boolean,
     modifier: Modifier = Modifier
 ) {
-    val cellColor = if (isActive) Color.Yellow else Color.LightGray
+    val cellColor = if (isActive && visible) Color.Yellow else Color.LightGray
 
     Box(
         modifier = modifier
@@ -81,5 +102,5 @@ fun GridCell(
 @Preview
 @Composable
 fun GameBoardPreview() {
-    GameBoard(activeCellIndex = 4)
+    GameBoard(gameState = GameState(eventValue = 4))
 }
