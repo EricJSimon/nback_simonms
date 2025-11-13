@@ -50,7 +50,7 @@ fun GameBoard(
 ) {
     var isCellVisible by remember { mutableStateOf(true) }
 
-    LaunchedEffect(key1 = gameState) {
+    LaunchedEffect(key1 = gameState.tick) {
         if (gameState.eventValue != -1) {
             isCellVisible = true
             delay(500L)
